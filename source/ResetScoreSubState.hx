@@ -2,9 +2,6 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.util.FlxColor;
-#if html5
-import flixel.FlxCamera;
-#end
 
 using StringTools;
 
@@ -18,14 +15,12 @@ class ResetScoreSubState extends MusicBeatSubstate
 	var noText:Alphabet;
 
 	var song:String;
-	var difficulty:Int;
 	var week:Int;
 
 	// Week -1 = Freeplay
-	public function new(song:String, difficulty:Int, character:String, week:Int = -1)
+	public function new(song:String, character:String, week:Int = -1)
 	{
 		this.song = song;
-		this.difficulty = difficulty;
 		this.week = week;
 
 		super();
@@ -34,7 +29,7 @@ class ResetScoreSubState extends MusicBeatSubstate
 		if(week > -1) {
 			name = WeekData.weeksLoaded.get(WeekData.weeksList[week]).weekName;
 		}
-		name += ' (' + CoolUtil.difficulties[difficulty] + ')?';
+		name += ' (' + CoolUtil.defaultDifficulty + ')?';
 
 		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0;
@@ -71,15 +66,6 @@ class ResetScoreSubState extends MusicBeatSubstate
 		noText.x += 200;
 		add(noText);
 		updateOptions();
-
-                #if html5
-		addVirtualPad(LEFT_RIGHT, A_B);
-		
-		var camcontrol = new FlxCamera();
-		FlxG.cameras.add(camcontrol);
-		camcontrol.bgColor.alpha = 0;
-		_virtualpad.cameras = [camcontrol];
-		#end
 	}
 
 	override function update(elapsed:Float)
@@ -100,25 +86,17 @@ class ResetScoreSubState extends MusicBeatSubstate
 		}
 		if(controls.BACK) {
 			FlxG.sound.play(Paths.sound('cancelMenu'), 1);
-			#if html5
-			MusicBeatState.resetState();
-			#else
 			close();
-			#end
 		} else if(controls.ACCEPT) {
 			if(onYes) {
 				if(week == -1) {
-					Highscore.resetSong(song, difficulty);
+					Highscore.resetSong(song);
 				} else {
-					Highscore.resetWeek(WeekData.weeksList[week], difficulty);
+					Highscore.resetWeek(WeekData.weeksList[week]);
 				}
 			}
 			FlxG.sound.play(Paths.sound('cancelMenu'), 1);
-            #if html5
-			MusicBeatState.resetState();
-			#else
 			close();
-			#end
 		}
 		super.update(elapsed);
 	}

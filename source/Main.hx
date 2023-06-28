@@ -1,5 +1,6 @@
 package;
 
+import flixel.graphics.FlxGraphic;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
@@ -8,10 +9,7 @@ import openfl.Lib;
 import openfl.display.FPS;
 import openfl.display.Sprite;
 import openfl.events.Event;
-#if html5 //only android will use those
-import lime.app.Application;
-import lime.system.System;
-#end
+import openfl.display.StageScaleMode;
 
 class Main extends Sprite
 {
@@ -45,11 +43,6 @@ class Main extends Sprite
 		}
 	}
 
-        static public function getDataPath():String
-        {
-                return "";
-        }
-
 	private function init(?E:Event):Void
 	{
 		if (hasEventListener(Event.ADDED_TO_STAGE))
@@ -77,15 +70,22 @@ class Main extends Sprite
 		#if !debug
 		initialState = TitleState;
 		#end
-
+	
 		ClientPrefs.loadDefaultKeys();
+		// fuck you, persistent caching stays ON during sex
+		FlxGraphic.defaultPersist = true;
+		// the reason for this is we're going to be handling our own cache smartly
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
+		#if !mobile
 		fpsVar = new FPS(10, 3, 0xFFFFFF);
 		addChild(fpsVar);
+		Lib.current.stage.align = "tl";
+		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		if(fpsVar != null) {
 			fpsVar.visible = ClientPrefs.showFPS;
 		}
+		#end
 
 		#if html5
 		FlxG.autoPause = false;
